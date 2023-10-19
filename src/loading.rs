@@ -25,6 +25,6 @@ pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
-    #[asset(path = "textures/robot_temp.png")]
+    #[asset(path = "textures/robot.png")]
     pub robot: Handle<Image>,
 }
