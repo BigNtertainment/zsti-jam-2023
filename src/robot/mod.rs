@@ -3,7 +3,7 @@ pub mod instructions;
 use bevy::prelude::*;
 
 use crate::{
-    grid::{cell_bounds, GridPosition},
+    grid::{cell_bounds, GridPosition, GridRotation},
     loading::TextureAssets,
     GameState,
 };
@@ -37,6 +37,7 @@ pub struct RobotBundle {
     // temp
     movement_timer: MovementTimer,
     grid_position: GridPosition,
+    grid_rotation: GridRotation,
     sprite_bundle: SpriteBundle,
 }
 
