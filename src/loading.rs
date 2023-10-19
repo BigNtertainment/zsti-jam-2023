@@ -24,4 +24,7 @@ impl Plugin for LoadingPlugin {
 pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
-pub struct TextureAssets {}
+pub struct TextureAssets {
+    #[asset(path = "textures/robot_temp.png")]
+    pub robot: Handle<Image>,
+}

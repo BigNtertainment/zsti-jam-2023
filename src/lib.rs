@@ -1,8 +1,10 @@
 #![allow(clippy::type_complexity)]
 
 mod audio;
+mod grid;
 mod loading;
 mod menu;
+mod robot;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -12,6 +14,8 @@ use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use grid::GridPlugin;
+use robot::RobotPlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -31,8 +35,13 @@ pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<GameState>()
-            .add_plugins((LoadingPlugin, MenuPlugin, InternalAudioPlugin));
+        app.add_state::<GameState>().add_plugins((
+            LoadingPlugin,
+            MenuPlugin,
+            InternalAudioPlugin,
+            GridPlugin,
+            RobotPlugin,
+        ));
 
         #[cfg(debug_assertions)]
         {
