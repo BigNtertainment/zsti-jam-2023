@@ -33,10 +33,10 @@ impl Default for GridPosition {
 
 #[derive(Reflect, Debug, Clone, PartialEq)]
 pub enum Rotation {
-    North,
-    East,
-    South,
-    West,
+    North = 1,
+    East = 2,
+    South = 3,
+    West = 4,
 }
 
 #[derive(Component, Reflect, Debug, Clone, PartialEq)]
@@ -76,7 +76,7 @@ fn update_positions(mut query: Query<(&mut Transform, &GridPosition)>, time: Res
     }
 }
 
-fn update_rotation(mut query: Query<(&mut Transform, &GridRotation)>, time: Res<Time>) {
+fn update_rotation(mut query: Query<(&mut Transform, &GridRotation)>) {
     for (mut transform, grid_rotation) in query.iter_mut() {
         let target = get_rotation(grid_rotation.rotation.clone());
 

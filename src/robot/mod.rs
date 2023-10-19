@@ -3,7 +3,7 @@ pub mod instructions;
 use bevy::prelude::*;
 
 use crate::{
-    grid::{cell_bounds, GridPosition, GridRotation},
+    grid::{cell_bounds, GridPosition, GridRotation, Rotation},
     loading::TextureAssets,
     GameState,
 };
@@ -23,9 +23,19 @@ impl Plugin for RobotPlugin {
     }
 }
 
-#[derive(Component, Debug, Default, Clone)]
+#[derive(Component, Debug , Clone)]
 pub struct Robot {
     pub instructions: Vec<Instruction>,
+    index: usize,
+}
+
+impl Default for Robot {
+    fn default() -> Self {
+        Self { 
+            instructions: vec![Instruction::TurnRight, Instruction::Walk, Instruction::TurnLeft],
+            index: 0 
+        }
+    }
 }
 
 #[derive(Component, Default, Clone, Deref, DerefMut)]
@@ -53,16 +63,53 @@ fn setup_robot(mut commands: Commands, textures: Res<TextureAssets>) {
 }
 
 fn move_robot(
-    mut robot_query: Query<(&mut MovementTimer, &mut GridPosition), With<Robot>>,
+    mut robot_query: Query<(&mut MovementTimer, &mut GridPosition, &mut GridRotation, &mut Robot)>,
     time: Res<Time>,
 ) {
-    let (mut timer, mut robot_position) = robot_query.single_mut();
+    let (mut timer, mut robot_position, mut grid_rotation, mut robot) = robot_query.single_mut();
+    
 
     timer.tick(time.delta());
 
     if timer.just_finished() {
-        robot_position.coords.y += 1;
+        exec_instruction(&robot.instructions, robot_position.as_mut(), grid_rotation.as_mut(), robot.index);
+        robot.index = robot.index + 1;
     }
+}
+
+fn exec_instruction(instructions: &Vec<Instruction>, grid_position: &mut GridPosition, grid_rotation: &mut GridRotation, mut inedx: usize,) {
+    if let Some(instruction) = instructions.get(inedx) {
+        match instruction {
+            Instruction::Walk => {
+                match grid_rotation.rotation {
+                    Rotation::North => {grid_position.coords.y += 1},
+                    Rotation::East => {grid_position.coords.x -= 1},
+                    Rotation::South => {grid_position.coords.y -= 1},
+                    Rotation::West => {grid_position.coords.x += 1},
+                }
+            },
+            Instruction::TurnRight => {
+                match grid_rotation.rotation {
+                    Rotation::North => {grid_rotation.rotation = Rotation::West},
+                    Rotation::East => {grid_rotation.rotation = Rotation::North},
+                    Rotation::South => {grid_rotation.rotation = Rotation::East},
+                    Rotation::West => {grid_rotation.rotation = Rotation::South},
+                }
+            },
+            Instruction::TurnLeft => {
+                match grid_rotation.rotation {
+                    Rotation::North => {grid_rotation.rotation = Rotation::East},
+                    Rotation::East => {grid_rotation.rotation = Rotation::South},
+                    Rotation::South => {grid_rotation.rotation = Rotation::West},
+                    Rotation::West => {grid_rotation.rotation = Rotation::North},
+                }
+            },
+            Instruction::If { condition, instructions,  mut index} => {
+                exec_instruction(instructions, grid_position, grid_rotation, inedx);
+                index = index + 1;
+            },
+        }
+    };
 }
 
 fn clicked_robot(
