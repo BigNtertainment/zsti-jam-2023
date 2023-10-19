@@ -1,6 +1,6 @@
 pub mod instructions;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 use crate::{
     grid::{cell_bounds, GridPosition},
@@ -8,18 +8,41 @@ use crate::{
     GameState,
 };
 
-use self::instructions::Instruction;
+use self::instructions::{
+    update_instruction_bank_ui, Instruction, InstructionBank, InstructionQuantity,
+};
 
 pub struct RobotPlugin;
 
 impl Plugin for RobotPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup_robot)
-            .add_systems(
-                Update,
-                (clicked_robot.pipe(edit_robot_code), move_robot)
-                    .run_if(in_state(GameState::Playing)),
-            );
+        app.insert_resource(InstructionBank {
+            instructions: {
+                let mut instructions = HashMap::new();
+
+                instructions.insert(Instruction::Walk, InstructionQuantity::Value(3));
+                instructions.insert(Instruction::TurnLeft, InstructionQuantity::Infinite);
+                instructions.insert(
+                    Instruction::If {
+                        condition: instructions::Condition::True,
+                        instructions: Vec::new(),
+                    },
+                    InstructionQuantity::Infinite,
+                );
+
+                instructions
+            },
+        })
+        .add_systems(OnEnter(GameState::Playing), setup_robot)
+        .add_systems(
+            Update,
+            (
+                clicked_robot.pipe(edit_robot_code),
+                move_robot,
+                update_instruction_bank_ui,
+            )
+                .run_if(in_state(GameState::Playing)),
+        );
     }
 }
 

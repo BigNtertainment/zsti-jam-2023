@@ -5,6 +5,8 @@ mod grid;
 mod loading;
 mod menu;
 mod robot;
+mod ui;
+mod util;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -14,8 +16,10 @@ use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use grid::GridPlugin;
 use robot::RobotPlugin;
+use ui::UiPlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -41,11 +45,16 @@ impl Plugin for GamePlugin {
             InternalAudioPlugin,
             GridPlugin,
             RobotPlugin,
+            UiPlugin,
         ));
 
         #[cfg(debug_assertions)]
         {
-            app.add_plugins((FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin::default()));
+            app.add_plugins((
+                FrameTimeDiagnosticsPlugin,
+                LogDiagnosticsPlugin::default(),
+                WorldInspectorPlugin::new(),
+            ));
         }
     }
 }
